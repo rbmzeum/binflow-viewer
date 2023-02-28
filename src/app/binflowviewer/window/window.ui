@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="BViewerWindow" parent="GtkApplicationWindow">
+    <property name="default-width">1200</property>
+    <property name="default-height">600</property>
+    <property name="title">BinFlow Viewer</property>
+    <child>
+        <object class="GtkLabel" id="label">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes">label</property>
+        </object>
+    </child>
+  </template>
+</interface>
