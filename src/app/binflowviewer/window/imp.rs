@@ -4,17 +4,23 @@ use gtk4::{
     ApplicationWindow,
     // Label,
     // HeaderBar,
+    Inhibit,
     CompositeTemplate,
     // template_callbacks,
     prelude::*,
     subclass::prelude::*,
 };
 
+use glib::once_cell::sync::OnceCell;
+use gio::Settings;
+
 #[derive(Default, CompositeTemplate)]
 #[template(file = "window.ui")]
 pub struct BViewerWindow {
     #[template_child(id = "label")]
     pub main_menu_bar: TemplateChild<gtk4::Label>,
+
+    pub settings: OnceCell<Settings>,
 }
 
 #[glib::object_subclass]
@@ -71,15 +77,34 @@ impl WindowCallbacks {
 impl ObjectImpl for BViewerWindow {
 
     fn constructed(&self, obj: &Self::Type) {
-        obj.init_label();
+        // obj.init_label();
         self.parent_constructed(obj);
 
+        // Load latest window state
+        obj.setup_settings();
+        obj.load_window_size();
+
         // Add actions
-        // self.obj().setup_actions();
+        // obj.setup_actions();
     }
 
 }
+
 // impl BoxImpl for BViewerWindow {}
+
 impl WidgetImpl for BViewerWindow {}
-impl WindowImpl for BViewerWindow {}
+
+impl WindowImpl for BViewerWindow {
+    // Save window state right before the window will be closed
+    fn close_request(&self, obj: &Self::Type) -> Inhibit {
+        // Save window size
+        obj
+            .save_window_size()
+            .expect("Failed to save window state");
+
+        // Don't inhibit the default handler
+        Inhibit(false)
+    }
+}
+
 impl ApplicationWindowImpl for BViewerWindow {}

@@ -3,13 +3,13 @@ use gtk4::{
     prelude::*,
 };
 
-use binflow::app::binflowviewer::window::BViewerWindow;
+// use gio::Settings;
 
-const APP_ID: &str = "net.binflow.viewer";
+use binflow::app::binflowviewer::window::BViewerWindow;
 
 fn main() {
     // Create a new application
-    let app = Application::builder().application_id(APP_ID).build();
+    let app = Application::builder().application_id(binflow::app::binflowviewer::APP_ID).build();
 
     // Connect to "activate" signal of `app`
     app.connect_activate(build_ui);
@@ -22,6 +22,6 @@ fn build_ui(app: &Application) {
     // Create a window and set the title
     let window = BViewerWindow::new(app);
 
-    // // Present window
+    // Present window
     window.present();
 }

@@ -7,14 +7,19 @@ use gtk4::{
     Widget,
     Application,
     ApplicationWindow,
-    // subclass::widget::TemplateChild,
+    Accessible,
+    Buildable,
+    ConstraintTarget,
+    Native,
+    Root,
+    ShortcutManager,
     subclass::prelude::*,
-    // prelude::*,
+    prelude::*,
 };
 
 use gio::{
     ActionMap,
-    ActionGroup,
+    ActionGroup, Settings,
     // SimpleAction,
 };
 
@@ -28,8 +33,9 @@ use gio::{
 
 glib::wrapper! {
     pub struct BViewerWindow(ObjectSubclass<imp::BViewerWindow>)
-        @extends Widget, Window, ApplicationWindow,
-        @implements ActionGroup, ActionMap;
+        @extends ApplicationWindow, Window, Widget,
+        @implements ActionGroup, ActionMap, Accessible, Buildable,
+                    ConstraintTarget, Native, Root, ShortcutManager;
 }
 
 impl BViewerWindow {
@@ -40,9 +46,52 @@ impl BViewerWindow {
         win
     }
 
-    pub fn init_label(&self) {
-        let _imp = self.imp();
-        // ...
+    // pub fn init_label(&self) {
+    //     let _imp = self.imp();
+    //     // ...
+    // }
+
+    fn setup_settings(&self) {
+        let settings = Settings::new(crate::app::binflowviewer::APP_ID);
+        self.imp()
+            .settings
+            .set(settings)
+            .expect("`settings` should not be set before calling `setup_settings`.");
+    }
+
+    fn settings(&self) -> &Settings {
+        self.imp()
+            .settings
+            .get()
+            .expect("`settings` should be set in `setup_settings`.")
+    }
+
+    pub fn save_window_size(&self) -> Result<(), glib::BoolError> {
+        // Get the size of the window
+        let size = self.default_size();
+
+        // Set the window state in `settings`
+        self.settings().set_int("default-width", size.0)?;
+        self.settings().set_int("default-height", size.1)?;
+        self.settings()
+            .set_boolean("is-maximized", self.is_maximized())?;
+
+        Ok(())
+    }
+
+    fn load_window_size(&self) {
+        // Get the window state from `settings`
+        let width = self.settings().int("default-width");
+        let height = self.settings().int("default-height");
+        let is_maximized = self.settings().boolean("is-maximized");
+
+        // Set the size of the window
+        self.set_default_size(width, height);
+
+        // If the window was maximized when it was closed, maximize it again
+        if is_maximized {
+            self.maximize();
+        }
     }
 
 }
