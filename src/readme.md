@@ -15,3 +15,9 @@ mkdir C:\ProgramData\glib-2.0\schemas\
 cp .\src\schemas\net.vs-binflow.viewer.gschema.xml C:\ProgramData\glib-2.0\schemas\
 glib-compile-schemas C:\ProgramData\glib-2.0\schemas\
 ```
+
+Run:
+
+```
+cargo run --bin vs-binflow-viewer
+```

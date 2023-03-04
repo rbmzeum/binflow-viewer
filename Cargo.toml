@@ -2,6 +2,7 @@
 name = "binflow"
 version = "0.1.0"
 edition = "2021"
+build = "src/build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -9,3 +10,6 @@ edition = "2021"
 gtk4 = "0.4.8"
 gio = "0.15.12"
 glib = "0.15.12"
+
+[build-dependencies]
+glib-build-tools = "0.17.0"

@@ -42,7 +42,17 @@ impl BViewerWindow {
 
     pub fn new<P: glib::IsA<Application>>(app: &P) -> Self {
         let win = glib::Object::new::<BViewerWindow>(&[("application", app)]).expect("Failed to create `ExApplicationWindow`");
-        // ...
+        // win.set_application(Some(app));
+
+        // =====================
+        // let menubuilder =
+        //     gtk4::Builder::from_resource("/vs/binflow/viewer/data/resources/ui/menu.ui");
+        // let menubar: gio::MenuModel = menubuilder
+        //     .object("menu")
+        //     .expect("Could not get object 'menu' from builder.");
+        // app.set_menubar(Some(&menubar));
+        // =====================
+
         win
     }
 
@@ -50,6 +60,18 @@ impl BViewerWindow {
     //     let _imp = self.imp();
     //     // ...
     // }
+
+    fn setup_menubar(&self) {
+        // let app = self.application().expect("self does not have an application set");
+        // app.set_menubar(menubar);
+
+        // let menubuilder =
+        //     gtk4::Builder::from_resource("/net/vs-binflow/viewer/resources/window/menu.ui");
+        // let menubar: gio::MenuModel = menubuilder
+        //     .object("menu")
+        //     .expect("Could not get object 'menu' from builder.");
+        // app.set_menubar(Some(&menubar));
+    }
 
     fn setup_settings(&self) {
         let settings = Settings::new(crate::app::binflowviewer::APP_ID);

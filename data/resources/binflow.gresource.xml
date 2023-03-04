@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+    <gresource prefix="/vs/binflow/viewer/">
+        <file compressed="true" preprocess="xml-stripblanks">data/resources/ui/window.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks">data/resources/ui/menu.ui</file>
+    </gresource>
+</gresources>

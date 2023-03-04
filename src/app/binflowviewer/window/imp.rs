@@ -6,7 +6,7 @@ use gtk4::{
     // HeaderBar,
     Inhibit,
     CompositeTemplate,
-    // template_callbacks,
+    template_callbacks,
     prelude::*,
     subclass::prelude::*,
 };
@@ -15,7 +15,8 @@ use glib::once_cell::sync::OnceCell;
 use gio::Settings;
 
 #[derive(Default, CompositeTemplate)]
-#[template(file = "window.ui")]
+// #[template(file = "window.ui")]
+#[template(resource = "/vs/binflow/viewer/data/resources/ui/window.ui")]
 pub struct BViewerWindow {
     #[template_child(id = "label")]
     pub main_menu_bar: TemplateChild<gtk4::Label>,
@@ -31,7 +32,7 @@ impl ObjectSubclass for BViewerWindow {
 
     fn class_init(klass: &mut Self::Class) {
         klass.bind_template();
-        WindowCallbacks::bind_template_callbacks(klass);
+        BViewerWindowCallbacks::bind_template_callbacks(klass);
     }
 
     // You must call `Widget`'s `init_template()` within `instance_init()`.
@@ -40,10 +41,10 @@ impl ObjectSubclass for BViewerWindow {
     }
 }
 
-struct WindowCallbacks {}
+struct BViewerWindowCallbacks {}
 
-#[gtk4::template_callbacks(functions)]
-impl WindowCallbacks {
+#[template_callbacks(functions)]
+impl BViewerWindowCallbacks {
     // #[template_callback]
     // fn to_string(value: &glib::Value) -> String {
     //     if let Ok(value) = value.get::<u64>() {
@@ -81,6 +82,7 @@ impl ObjectImpl for BViewerWindow {
         self.parent_constructed(obj);
 
         // Load latest window state
+        obj.setup_menubar();
         obj.setup_settings();
         obj.load_window_size();
 

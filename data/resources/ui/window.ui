@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <template class="BViewerWindow" parent="GtkApplicationWindow">
-    <property name="title">BinFlow Viewer</property>
+    <property name="title">VS BinFlow Viewer</property>
     <child>
         <object class="GtkLabel" id="label">
             <property name="visible">True</property>
