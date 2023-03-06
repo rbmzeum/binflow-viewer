@@ -26,6 +26,7 @@ fn build_ui(app: &Application) {
     let window = BViewerWindow::new(app);
 
     window.setup_menubar();
+    window.setup_accels_for_actions();
 
     // Present window
     window.present();

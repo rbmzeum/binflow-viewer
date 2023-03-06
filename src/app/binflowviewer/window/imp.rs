@@ -85,7 +85,7 @@ impl ObjectImpl for BViewerWindow {
         obj.load_window_size();
 
         // Add actions
-        // obj.setup_actions();
+        obj.setup_actions();
     }
 
 }

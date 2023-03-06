@@ -19,8 +19,14 @@ use gtk4::{
 
 use gio::{
     ActionMap,
-    ActionGroup, Settings,
+    ActionGroup, Settings, SimpleAction,
     // SimpleAction,
+};
+
+use glib::{
+    clone,
+    // ObjectExt,
+    // closure_local
 };
 
 // use glib::{
@@ -59,6 +65,23 @@ impl BViewerWindow {
             .expect("Could not get object 'main-menu' from builder.");
         app.set_menubar(Some(&menubar));
         self.set_show_menubar(true);
+    }
+
+    fn setup_actions(&self) {
+        let window = self;
+
+        let action_quit = SimpleAction::new("quit", None);
+        action_quit.connect_activate(clone!(@weak window => move |_action, _parameter| {
+            window.close();
+        }));
+        window.add_action(&action_quit);
+    }
+
+    pub fn setup_accels_for_actions(&self) {
+        let app = self.application().expect("self does not have an application set");
+
+        // Set keyboard accelerator to trigger "win.quit".
+        app.set_accels_for_action("win.quit", &["<Ctrl>Q"]);
     }
 
     fn setup_settings(&self) {
