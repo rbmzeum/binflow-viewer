@@ -15,7 +15,6 @@ use glib::once_cell::sync::OnceCell;
 use gio::Settings;
 
 #[derive(Default, CompositeTemplate)]
-// #[template(file = "window.ui")]
 #[template(resource = "/vs/binflow/viewer/data/resources/ui/window.ui")]
 pub struct BViewerWindow {
     #[template_child(id = "label")]
@@ -82,7 +81,6 @@ impl ObjectImpl for BViewerWindow {
         self.parent_constructed(obj);
 
         // Load latest window state
-        obj.setup_menubar();
         obj.setup_settings();
         obj.load_window_size();
 
