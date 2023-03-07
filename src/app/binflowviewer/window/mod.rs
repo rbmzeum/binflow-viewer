@@ -14,6 +14,9 @@ use gtk4::{
     Native,
     Root,
     ShortcutManager,
+    FileChooserDialog,
+    FileChooserAction,
+    ResponseType,
     subclass::prelude::*,
     prelude::*,
 };
@@ -70,6 +73,47 @@ impl BViewerWindow {
 
     fn setup_actions(&self) {
         let window = self;
+
+        let action_open = SimpleAction::new("open", None);
+        action_open.connect_activate(clone!(@weak window => move |_action, _parameter| {
+            let chooser = FileChooserDialog::builder()
+                .modal(true)
+                .action(FileChooserAction::Open)
+                .title("Open binary data file")
+                .build();
+            chooser.set_transient_for(Some(&window));
+
+            // if let Err(err) = chooser.set_current_folder(Some(&gio::File::for_path(self.saving_location()))) {
+            //     tracing::warn!("Failed to set current folder: {:?}", err);
+            // }
+
+            chooser.add_button("_Cancel", ResponseType::Cancel);
+            chooser.add_button("_Select", ResponseType::Accept);
+            chooser.set_default_response(ResponseType::Accept);
+
+            chooser.present();
+
+            let inner = &window;
+            chooser.connect_response(clone!(@weak inner => move |chooser, response| {
+                if response != ResponseType::Accept {
+                    chooser.close();
+                    return;
+                }
+
+                let filename = if let Some(filename) = chooser.file().and_then(|file| file.path()) {
+                    filename
+                } else {
+                    // TODO: output message: "Please choose a file and try again."
+                    return;
+                };
+
+                // TODO: open and load data from selected file
+                println!("Selected filename: {:#?}", &filename);
+
+                chooser.close();
+            }));
+        }));
+        window.add_action(&action_open);
 
         let action_quit = SimpleAction::new("quit", None);
         action_quit.connect_activate(clone!(@weak window => move |_action, _parameter| {
