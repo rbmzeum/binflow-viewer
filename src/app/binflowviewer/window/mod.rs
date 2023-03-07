@@ -1,4 +1,5 @@
 pub mod imp;
+pub mod components;
 
 use gtk4::{
     gio,

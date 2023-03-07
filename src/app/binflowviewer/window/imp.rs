@@ -14,11 +14,17 @@ use gtk4::{
 use glib::once_cell::sync::OnceCell;
 use gio::Settings;
 
+use super::components::chart::BChartComponent;
+
 #[derive(Default, CompositeTemplate)]
 #[template(resource = "/vs/binflow/viewer/data/resources/ui/window.ui")]
 pub struct BViewerWindow {
-    #[template_child(id = "label")]
-    pub main_menu_bar: TemplateChild<gtk4::Label>,
+    // #[template_child(id = "label")]
+    // pub main_menu_bar: TemplateChild<gtk4::Label>,
+
+    // @see https://github.com/plotters-rs/plotters-gtk-demo/blob/master/src/main.rs
+    #[template_child(id = "chart")]
+    pub chart_component: TemplateChild<BChartComponent>,
 
     pub settings: OnceCell<Settings>,
 }

@@ -3,10 +3,7 @@
   <template class="BViewerWindow" parent="GtkApplicationWindow">
     <property name="title">VS BinFlow Viewer</property>
     <child>
-        <object class="GtkLabel" id="label">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="label" translatable="yes">label</property>
+        <object class="BChartComponent" id="chart">
         </object>
     </child>
   </template>

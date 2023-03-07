@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <template class="BChartComponent" parent="GtkDrawingArea">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="halign">fill</property>
+        <property name="valign">fill</property>
+        <property name="hexpand">True</property>
+        <property name="vexpand">True</property>
+        <signal name="resize" handler="on_chart_resize" swapped="true" />
+    </template>
+</interface>

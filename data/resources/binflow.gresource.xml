@@ -3,5 +3,6 @@
     <gresource prefix="/vs/binflow/viewer/">
         <file compressed="true" preprocess="xml-stripblanks">data/resources/ui/window.ui</file>
         <file compressed="true" preprocess="xml-stripblanks">data/resources/ui/menu.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks">data/resources/ui/chart.ui</file>
     </gresource>
 </gresources>
