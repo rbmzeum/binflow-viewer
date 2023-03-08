@@ -13,5 +13,9 @@
       <default>600</default>
       <summary>Default height</summary>
     </key>
+    <key name="default-directory" type="s">
+      <default>"/"</default>
+      <summary>Default directory</summary>
+    </key>
   </schema>
 </schemalist>

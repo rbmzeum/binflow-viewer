@@ -1,6 +1,8 @@
 pub mod imp;
 pub mod components;
 
+use std::path::Path;
+
 use gtk4::{
     gio,
     glib,
@@ -83,9 +85,9 @@ impl BViewerWindow {
                 .build();
             chooser.set_transient_for(Some(&window));
 
-            // if let Err(err) = chooser.set_current_folder(Some(&gio::File::for_path(self.saving_location()))) {
-            //     tracing::warn!("Failed to set current folder: {:?}", err);
-            // }
+            if let Err(_err) = chooser.set_current_folder(Some(&gio::File::for_path(window.settings().string("default-directory")))) {
+                // tracing::warn!("Failed to set current folder: {:?}", err);
+            }
 
             chooser.add_button("_Cancel", ResponseType::Cancel);
             chooser.add_button("_Select", ResponseType::Accept);
@@ -93,8 +95,7 @@ impl BViewerWindow {
 
             chooser.present();
 
-            let inner = &window;
-            chooser.connect_response(clone!(@weak inner => move |chooser, response| {
+            chooser.connect_response(clone!(@weak window => move |chooser, response| {
                 if response != ResponseType::Accept {
                     chooser.close();
                     return;
@@ -107,8 +108,17 @@ impl BViewerWindow {
                     return;
                 };
 
-                // TODO: open and load data from selected file
+                // Save current directory to settings
+                let directory = filename
+                    .parent()
+                    .expect("Failed to get the directory from the path.")
+                    .to_str()
+                    .expect("Failed convert `Path` to `&str`");
+                window.settings().set_string("default-directory", directory).expect("Failed to save `default-directory`");
+
                 println!("Selected filename: {:#?}", &filename);
+                let f = filename.to_str().expect("Failed convert `Path` to `&str`");
+                // TODO: open and load data from selected file (async)
 
                 chooser.close();
             }));
