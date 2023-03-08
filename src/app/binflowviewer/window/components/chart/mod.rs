@@ -16,4 +16,9 @@ glib::wrapper! {
 }
 
 impl BChartComponent {
+
+    pub fn set_values(&self, values: Vec<f64>) {
+        self.imp().values.set(values);
+    }
+
 }

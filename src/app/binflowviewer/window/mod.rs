@@ -1,7 +1,8 @@
 pub mod imp;
 pub mod components;
 
-use std::path::Path;
+use std::{path::Path, fs::OpenOptions, io::SeekFrom};
+use std::io::{prelude::*};
 
 use gtk4::{
     gio,
@@ -116,9 +117,30 @@ impl BViewerWindow {
                     .expect("Failed convert `Path` to `&str`");
                 window.settings().set_string("default-directory", directory).expect("Failed to save `default-directory`");
 
-                println!("Selected filename: {:#?}", &filename);
                 let f = filename.to_str().expect("Failed convert `Path` to `&str`");
-                // TODO: open and load data from selected file (async)
+                // println!("Selected filename: {:#?}", &filename);
+
+                let mut file = OpenOptions::new()
+                    .read(true)
+                    .open(f)
+                    .unwrap();
+
+                // file.seek(SeekFrom::Start(offset)).unwrap();
+
+                let length = match std::fs::metadata(f) {
+                    Ok(m) => m.len(),
+                    Err(_e) => 0,
+                };
+
+                let mut buf = vec![0; length as usize];
+                let _r = file.read_exact(&mut buf);
+
+                // convert Vec<u8> to Vec<f64>
+                let values = buf.chunks(8).map(|v| {
+                    f64::from_be_bytes([v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]])
+                }).collect::<Vec<f64>>();
+
+                window.imp().chart_component.set_values(values);
 
                 chooser.close();
             }));

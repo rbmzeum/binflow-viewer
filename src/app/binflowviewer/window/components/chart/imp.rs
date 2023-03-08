@@ -8,12 +8,15 @@ use gtk4::{
     subclass::prelude::*,
 };
 
+use glib::once_cell::sync::OnceCell;
+
 #[derive(Debug, Default, CompositeTemplate)]
 #[template(resource = "/vs/binflow/viewer/data/resources/ui/chart.ui")]
 pub struct BChartComponent {
     // callback: Box<dyn FnMut() -> Rc<Cell<u32>>>,
     // pub selected_symbol: Option<Arc<Cell<*mut u32>>>,
     // pub selected_symbol: Rc<Cell<u32>>,
+    pub values: OnceCell<Vec<f64>>,
 }
 
 #[glib::object_subclass]
@@ -41,7 +44,11 @@ impl BChartComponent {
         // let mut s = self.toolbar.get();
         // println!("CP & SS: {:#?} {:#?}", d.imp().selected_symbol.get(), s.imp().selected_symbol.get());
         // d.set_content_height(123);
-        println!("ON CHART RESIZE: {:#?} {:#?}", width, height);
+        let len = match self.values.get() {
+            Some(x) => x.len(),
+            None => 0,
+        };
+        println!("ON CHART RESIZE: {:#?} {:#?} {:#?}", width, height, len);
     }
 }
 
