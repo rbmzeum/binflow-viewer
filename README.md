@@ -21,3 +21,9 @@ Run:
 ```
 cargo run --bin vs-binflow-viewer
 ```
+
+Example file:
+
+```
+./data/prices/btcusd
+```

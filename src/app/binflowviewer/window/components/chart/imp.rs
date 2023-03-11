@@ -13,9 +13,6 @@ use glib::once_cell::sync::OnceCell;
 #[derive(Debug, Default, CompositeTemplate)]
 #[template(resource = "/vs/binflow/viewer/data/resources/ui/chart.ui")]
 pub struct BChartComponent {
-    // callback: Box<dyn FnMut() -> Rc<Cell<u32>>>,
-    // pub selected_symbol: Option<Arc<Cell<*mut u32>>>,
-    // pub selected_symbol: Rc<Cell<u32>>,
     pub values: OnceCell<Vec<f64>>,
 }
 
@@ -39,11 +36,6 @@ impl ObjectSubclass for BChartComponent {
 impl BChartComponent {
     #[template_callback(name = "on_chart_resize")]
     fn on_chart_resize(&self, width: i32, height: i32) {
-        // ...
-        // let mut d = self.chart_price.get();
-        // let mut s = self.toolbar.get();
-        // println!("CP & SS: {:#?} {:#?}", d.imp().selected_symbol.get(), s.imp().selected_symbol.get());
-        // d.set_content_height(123);
         let len = match self.values.get() {
             Some(x) => x.len(),
             None => 0,
@@ -53,15 +45,6 @@ impl BChartComponent {
 }
 
 impl ObjectImpl for BChartComponent {
-    // Needed for direct subclasses of GtkWidget;
-    // Here you need to unparent all direct children
-    // of your template.
-    // fn dispose(&self, obj: &Self::Type) {
-    //     while let Some(child) = obj.first_child() {
-    //         child.unparent();
-    //     }
-    // }
-
     fn constructed(&self, obj: &Self::Type) {
         self.parent_constructed(obj);
 
@@ -70,15 +53,7 @@ impl ObjectImpl for BChartComponent {
 }
 
 impl WidgetImpl for BChartComponent {
-    // fn size_allocate(&self, widget: &Self::Type, width: i32, height: i32, baseline: i32) {
-    //     self.parent_size_allocate(widget, width, height, baseline);
-    //     self.popover.present();
-    // }
 }
 
 impl DrawingAreaImpl for BChartComponent {
-    // fn size_allocate(&self, widget: &Self::Type, width: i32, height: i32, baseline: i32) {
-    //     self.parent_size_allocate(widget, width, height, baseline);
-    //     self.popover.present();
-    // }
 }
