@@ -28,6 +28,7 @@ use gio::{
     ActionMap,
     ActionGroup, Settings, SimpleAction,
     // SimpleAction,
+    // MenuModel,
 };
 
 use glib::{
@@ -35,14 +36,6 @@ use glib::{
     // ObjectExt,
     // closure_local
 };
-
-// use glib::{
-//     clone,
-//     ObjectExt,
-//     closure_local
-// };
-
-// use gio::MenuModel;
 
 glib::wrapper! {
     pub struct BViewerWindow(ObjectSubclass<imp::BViewerWindow>)
@@ -141,6 +134,7 @@ impl BViewerWindow {
                 }).collect::<Vec<f64>>();
 
                 window.imp().chart_component.set_values(values);
+                window.imp().chart_component.get().queue_draw();
 
                 chooser.close();
             }));

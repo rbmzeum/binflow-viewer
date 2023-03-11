@@ -61,6 +61,12 @@ impl ObjectImpl for BChartComponent {
     //         child.unparent();
     //     }
     // }
+
+    fn constructed(&self, obj: &Self::Type) {
+        self.parent_constructed(obj);
+
+        obj.setup_drawing_area();
+    }
 }
 
 impl WidgetImpl for BChartComponent {
