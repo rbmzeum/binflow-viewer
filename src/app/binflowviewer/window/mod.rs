@@ -136,6 +136,7 @@ impl BViewerWindow {
                 }).collect::<Vec<f64>>();
 
                 window.imp().chart_component.set_values(values);
+                window.imp().chart_component.get().imp().offset.replace(0);
                 window.imp().chart_component.get().queue_draw();
 
                 chooser.close();

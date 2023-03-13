@@ -18,6 +18,8 @@ use glib::{once_cell::sync::OnceCell, WeakRef};
 pub struct BChartComponent {
     // pub state: OnceCell<BChartComponentState>,
     pub is_spacebar_pressed: Cell<bool>,
+    pub start_offset: RefCell<usize>,
+    pub offset: RefCell<usize>,
     pub values: RefCell<Vec<f64>>,
 }
 
@@ -39,20 +41,10 @@ impl ObjectSubclass for BChartComponent {
 
 #[gtk4::template_callbacks]
 impl BChartComponent {
-    #[template_callback(name = "on_chart_resize")]
-    fn on_chart_resize(&self, width: i32, height: i32) {
-        let len = self.values.borrow().len();
-        println!("ON CHART RESIZE: {:#?} {:#?} {:#?}", width, height, len);
-    }
-
-    // #[template_callback(name = "on_chart_key_pressed")]
-    // fn on_chart_key_pressed(&self) {
-    //     // let len = match self.values.get() {
-    //     //     Some(x) => x.len(),
-    //     //     None => 0,
-    //     // };
-    //     // println!("ON CHART RESIZE: {:#?} {:#?} {:#?}", width, height, len);
-    //     println!("ON KEY PRESSED");
+    // #[template_callback(name = "on_chart_resize")]
+    // fn on_chart_resize(&self, width: i32, height: i32) {
+    //     let len = self.values.borrow().len();
+    //     println!("ON CHART RESIZE: {:#?} {:#?} {:#?}", width, height, len);
     // }
 }
 
@@ -61,23 +53,8 @@ impl ObjectImpl for BChartComponent {
         self.parent_constructed(obj);
 
         obj.setup_drawing_area();
-        // obj.setup_key_events();
+        obj.setup_drag();
     }
-
-    // fn signals() -> &'static [Signal] {
-    //     static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
-    //         vec![Signal::builder(
-    //             // Signal name
-    //             "change-selected-symbol",
-    //             // Types of the values which will be sent to the signal handler
-    //             &[u32::static_type().into()],
-    //             // Type of the value the signal handler sends back
-    //             <()>::static_type().into(),
-    //         )
-    //         .build()]
-    //     });
-    //     SIGNALS.as_ref()
-    // }
 }
 
 impl WidgetImpl for BChartComponent {

@@ -1,9 +1,13 @@
 pub mod imp;
 
+use std::cell::{Cell, RefCell};
+
 use chrono::{Utc, Duration};
 use chrono::prelude::*;
 
-use gtk4::traits::{EventControllerExt, WidgetExt};
+use gdk4::glib::WeakRef;
+use glib::once_cell::sync::OnceCell;
+use gtk4::traits::{GestureSingleExt, GestureDragExt};
 use gtk4::{
     glib,
     glib::closure_local,
@@ -16,10 +20,16 @@ use gtk4::{
     DrawingArea,
     prelude::DrawingAreaExtManual,
     cairo::{Context, Error},
+    traits::{EventControllerExt, WidgetExt},
+    gdk::EventType::{
+        ButtonPress,
+        MotionNotify,
+        ButtonRelease,
+    },
 };
 
 use glib::{
-    clone, WeakRef,
+    clone,
     // ObjectExt,
     // closure_local
 };
@@ -44,15 +54,36 @@ impl BChartComponent {
         }));
     }
 
-    // pub fn setup_key_events(&self) {
-    //     let event = gtk4::EventControllerKey::new();
-    //     self.add_controller(&event);
-    //     event.set_propagation_phase(gtk4::PropagationPhase::Capture);
-    //     event.connect_key_pressed(clone!(@strong self as this => move |_, keyval, _, _| {
-    //         println!("Key pressed: {}", keyval);
-    //         gtk4::Inhibit(false)
-    //     }));
-    // }
+    pub fn setup_drag(&self) {
+        self.imp().offset.replace(0);
+        self.imp().start_offset.replace(0);
+
+        let gesture = gtk4::GestureDrag::new();
+        self.add_controller(&gesture);
+        gesture.set_exclusive(true);
+        gesture.connect_drag_begin(clone!(@weak self as this => move |_, x, y| {
+            this.imp().start_offset.replace(this.imp().offset.borrow().clone());
+        }));
+        gesture.connect_drag_update(clone!(@weak self as this => move |gesture, offset_x, offset_y| {
+            if let Some((start_x, start_y)) = gesture.start_point() {
+                let offset = this.imp().start_offset.borrow().clone();
+                let mut new_offset = offset as i32 + offset_x.floor() as i32;
+                if new_offset < 0 {
+                    new_offset = 0;
+                }
+                if new_offset as usize > this.imp().values.borrow().len() {
+                    new_offset = this.imp().values.borrow().len() as i32;
+                }
+                this.imp().offset.replace(new_offset as usize);
+                this.queue_draw();
+            }
+        }));
+        gesture.connect_drag_end(clone!(@weak self as this => move |gesture, offset_x, offset_y| {
+            // if let Some((start_x, start_y)) = gesture.start_point() {
+            // }
+            // TODO: установить изображение курсора мыши в виде обычного курсора мыши (или в виде разжатой руки готовой для перетаскивания)
+        }));
+    }
 
     pub fn draw_grid(&self, _drawing_area: &DrawingArea, ctx: &Context, width: i32, height: i32) {
         const PADDING_LEFT: f64 = 20.0;
@@ -118,9 +149,10 @@ impl BChartComponent {
         }
 
         let values = self.imp().values.borrow();
+        let offset = self.imp().offset.borrow().clone();
         // TODO: показывать графики с длиной меньше width
         if values.len() > width as usize {
-            let v = &values[(values.len() - width as usize + PADDING_LEFT as usize + PADDING_RIGHT as usize)..];
+            let v = &values[(values.len() - width as usize + PADDING_LEFT as usize + PADDING_RIGHT as usize) - offset..values.len() - offset];
             let max = v.iter().copied().fold(f64::NEG_INFINITY, f64::max);
             let min = v.iter().copied().fold(f64::INFINITY, f64::min);
 
@@ -160,9 +192,10 @@ impl BChartComponent {
 
         // let x = self.imp().values.borrow_mut();
         let values = self.imp().values.borrow();
+        let offset = self.imp().offset.borrow().clone();
         // TODO: показывать графики с длиной меньше width
         if values.len() > width as usize {
-            let v = &values[(values.len() - width as usize + PADDING_LEFT as usize + PADDING_RIGHT as usize)..];
+            let v = &values[(values.len() - width as usize + PADDING_LEFT as usize + PADDING_RIGHT as usize) - offset..values.len() - offset];
             let max = v.iter().copied().fold(f64::NEG_INFINITY, f64::max);
             let min = v.iter().copied().fold(f64::INFINITY, f64::min);
 
