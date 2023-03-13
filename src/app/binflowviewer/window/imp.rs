@@ -92,6 +92,8 @@ impl ObjectImpl for BViewerWindow {
 
         // Add actions
         obj.setup_actions();
+
+        obj.setup_key_events();
     }
 
 }

@@ -4,7 +4,9 @@ pub mod components;
 use std::{path::Path, fs::OpenOptions, io::SeekFrom};
 use std::io::{prelude::*};
 
+use gtk4::gsk::InsetShadowNode;
 use gtk4::{
+    gdk::Surface,
     gio,
     glib,
     Window,
@@ -153,6 +155,40 @@ impl BViewerWindow {
 
         // Set keyboard accelerator to trigger "win.quit".
         app.set_accels_for_action("win.quit", &["<Ctrl>Q"]);
+    }
+
+    pub fn setup_key_events(&self) {
+        let event = gtk4::EventControllerKey::new();
+        self.add_controller(&event);
+        event.set_propagation_phase(gtk4::PropagationPhase::Capture);
+        event.connect_key_pressed(clone!(@strong self as this => move |_, keyval, _, _| {
+            // println!("Key pressed: {}", keyval);
+            // let x = this.imp().chart_component.get().imp().is_spacebar_pressed.get();
+            match keyval.name() {
+                Some(name) => {
+                    if name == "space" {
+                        this.imp().chart_component.get().imp().is_spacebar_pressed.set(true);
+                        println!("Pressed space: {:#?}", this.imp().chart_component.get().imp().is_spacebar_pressed);
+                    }
+                },
+                _ => {},
+            }
+
+            // println!("Status: {:#?}", this.imp().chart_component.get().imp().is_spacebar_pressed.get());
+            gtk4::Inhibit(false)
+        }));
+        event.connect_key_released(clone!(@strong self as this => move |_, keyval, _, _| {
+            // println!("Key released: {}", keyval);
+            match keyval.name() {
+                Some(name) => {
+                    if name == "space" {
+                        this.imp().chart_component.get().imp().is_spacebar_pressed.set(false);
+                        println!("Released space: {:#?}", this.imp().chart_component.get().imp().is_spacebar_pressed);
+                    }
+                },
+                _ => {},
+            }
+        }));
     }
 
     fn setup_settings(&self) {
