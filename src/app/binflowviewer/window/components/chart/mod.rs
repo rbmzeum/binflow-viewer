@@ -150,7 +150,10 @@ impl BChartComponent {
                 ctx.show_text(sh.as_str());
             }
 
-            let offset = self.imp().offset.borrow().clone();
+            let offset = match values.len() as f64 > width as f64 - PADDING_LEFT - PADDING_RIGHT - 1.0 {
+                true => self.imp().offset.borrow().clone(),
+                false => 0,
+            };
             let from = std::cmp::max(0, (values.len() as i32 - width + PADDING_LEFT as i32 + PADDING_RIGHT as i32) - offset as i32) as usize;
             let v = &values[from..values.len() - offset];
             let max = v.iter().copied().fold(f64::NEG_INFINITY, f64::max);
@@ -188,7 +191,10 @@ impl BChartComponent {
         // TODO: показывать графики с длиной меньше width
         let values = self.imp().values.borrow();
         if values.len() > 0 {
-            let offset = self.imp().offset.borrow().clone();
+            let offset = match values.len() as f64 > width as f64 - PADDING_LEFT - PADDING_RIGHT - 1.0 {
+                true => self.imp().offset.borrow().clone(),
+                false => 0,
+            };
             let from = std::cmp::max(0, (values.len() as i32 - width + PADDING_LEFT as i32 + PADDING_RIGHT as i32) - offset as i32) as usize;
             let v = &values[from..values.len() - offset];
             let max = v.iter().copied().fold(f64::NEG_INFINITY, f64::max);
@@ -199,16 +205,31 @@ impl BChartComponent {
             // Отображение графика
             ctx.set_source_rgb(67.0 / 255.0, 70.0 / 255.0, 255.0 / 255.0); // Set the chart lines color
             ctx.set_line_width(1.0);
-            for (ix, p) in v.windows(2).rev().enumerate() {
-                let x = width as f64 - PADDING_RIGHT - ix as f64;
-                let y1 = height as f64 - PADDING_BOTTOM - PADDING_CHART - (p[0] - min) * hmm;
-                let y2 = height as f64 - PADDING_BOTTOM - PADDING_CHART - (p[1] - min) * hmm;
-                if (y1 == y2) {
-                    ctx.move_to(x + 1.0, y1);
-                    ctx.line_to(x, y2);
-                } else {
-                    ctx.move_to(x, y1);
-                    ctx.line_to(x, y2);
+            if values.len() > width as usize - PADDING_LEFT as usize - PADDING_RIGHT as usize {
+                for (ix, p) in v.windows(2).rev().enumerate() {
+                    let x = width as f64 - PADDING_RIGHT - ix as f64;
+                    let y1 = height as f64 - PADDING_BOTTOM - PADDING_CHART - (p[0] - min) * hmm;
+                    let y2 = height as f64 - PADDING_BOTTOM - PADDING_CHART - (p[1] - min) * hmm;
+                    if y1 == y2 {
+                        ctx.move_to(x + 1.0, y1);
+                        ctx.line_to(x, y2);
+                    } else {
+                        ctx.move_to(x, y1);
+                        ctx.line_to(x, y2);
+                    }
+                    ctx.stroke();
+                }
+            } else {
+                let x0 = width as f64 - PADDING_RIGHT - 1 as f64;
+                let y0 = height as f64 - PADDING_BOTTOM - PADDING_CHART - (values[values.len()-1] - min) * hmm;
+                ctx.move_to(x0, y0);
+                let w = (width as f64 - PADDING_RIGHT - PADDING_LEFT - 1.0) / values.len() as f64;
+                for (ix, p) in v.iter().rev().enumerate() {
+                    if ix > 0 {
+                        let x = width as f64 - PADDING_RIGHT - (w * ix as f64);
+                        let y = height as f64 - PADDING_BOTTOM - PADDING_CHART - (p - min) * hmm;
+                        ctx.line_to(x, y);
+                    }
                 }
                 ctx.stroke();
             }
