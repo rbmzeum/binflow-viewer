@@ -183,12 +183,12 @@ impl BChartComponent {
                     let p = min + i as f64 * (max-min) / n as f64;
                     let y = height as f64 - PADDING_BOTTOM - PADDING_CHART - (p - min) * hmm;
 
-                    let sp = format!("{:.2}", p);
-                    ctx.set_source_rgb(17.0 / 255.0, 34.0 / 255.0, 45.0 / 255.0);
-                    ctx.set_font_size(10.0);
-                    let b = ctx.text_extents(sp.as_str()).unwrap();
-                    ctx.move_to(width as f64 - (PADDING_RIGHT - 4.0), y - (b.height / 2.0 + b.y_bearing));
-                    ctx.show_text(sp.as_str());
+                    // let sp = format!("{:.2}", p);
+                    // ctx.set_source_rgb(17.0 / 255.0, 34.0 / 255.0, 45.0 / 255.0);
+                    // ctx.set_font_size(10.0);
+                    // let b = ctx.text_extents(sp.as_str()).unwrap();
+                    // ctx.move_to(width as f64 - (PADDING_RIGHT - 4.0), y - (b.height / 2.0 + b.y_bearing));
+                    // ctx.show_text(sp.as_str());
 
                     ctx.set_source_rgb(230.0 / 255.0, 230.0 / 255.0, 230.0 / 255.0);
                     ctx.move_to(PADDING_LEFT, y);
@@ -205,10 +205,16 @@ impl BChartComponent {
     }
 
     pub fn draw_chart(&self, _drawing_area: &DrawingArea, ctx: &Context, width: i32, height: i32) {
-        // let x = self.imp().values.borrow_mut();
-        // TODO: показывать графики с длиной меньше width
+        let palette = [
+            [0x2a as f64 / 255.0, 0x2b as f64 / 255.0, 0x64 as f64 / 255.0], // Синий
+            [0xf0 as f64 / 255.0, 0xb2 as f64 / 255.0, 0x29 as f64 / 255.0], // Жёлтый
+            [0x88 as f64 / 255.0, 0x2a as f64 / 255.0, 0x2a as f64 / 255.0], // Красный
+            [0x00 as f64 / 255.0, 0x4f as f64 / 255.0, 0x30 as f64 / 255.0], // Зелёный
+            [0x71 as f64 / 255.0, 0x4e as f64 / 255.0, 0x30 as f64 / 255.0], // Коричнево-рыжий
+            [0x49 as f64 / 255.0, 0x21 as f64 / 255.0, 0x5D as f64 / 255.0], // Черника, фиалка
+        ];
         let values_map = self.imp().values.borrow();
-        for (chart_name, values) in &*values_map {
+        for (index, (chart_name, values)) in (&*values_map).iter().enumerate() {
             if values.len() > 0 {
                 let offset = match values.len() as f64 > width as f64 - PADDING_LEFT - PADDING_RIGHT - 1.0 {
                     true => self.imp().offset.borrow().clone(),
@@ -222,12 +228,7 @@ impl BChartComponent {
                 let hmm = (height as f64 - (PADDING_BOTTOM + 2.0 * PADDING_CHART)) / (max-min) as f64;
 
                 // Отображение графика
-                // TODO: реализовать раскраску графиков несколькими цветсами (вынести предопределённый набор цветов за пределы цикла)
-                // let color_r: f64 = rand::random();
-                // let color_g: f64 = rand::random();
-                // let color_b: f64 = rand::random();
-                // ctx.set_source_rgb(color_r, color_g, color_b); // Set the chart lines color
-                ctx.set_source_rgb(67.0 / 255.0, 70.0 / 255.0, 255.0 / 255.0); // Set the chart lines color
+                ctx.set_source_rgb(palette[index % palette.len()][0], palette[index % palette.len()][1], palette[index % palette.len()][2]);
                 ctx.set_line_width(1.0);
                 if values.len() > width as usize - PADDING_LEFT as usize - PADDING_RIGHT as usize {
                     for (ix, p) in v.windows(2).rev().enumerate() {
@@ -282,14 +283,14 @@ impl BChartComponent {
                 let y = height as f64 - PADDING_BOTTOM - PADDING_CHART - (c - min) * hmm;
 
                 // фон для названия тикера
-                ctx.set_source_rgba(0x1D as f64 / 255.0, 0x70 as f64 / 255.0, 0x74 as f64 / 255.0, 0.7);
+                ctx.set_source_rgba(palette[index % palette.len()][0], palette[index % palette.len()][1], palette[index % palette.len()][2], 0.7);
                 ctx.set_line_width(16.0);
                 ctx.move_to(PADDING_LEFT, y);
                 ctx.line_to(PADDING_LEFT + 100.0, y);
                 ctx.stroke();
 
                 // название тикера
-                ctx.set_source_rgba(0xFF as f64 / 255.0, 0xFF as f64 / 255.0, 0xFF as f64 / 255.0, 0.7);
+                ctx.set_source_rgba(1.0, 1.0, 1.0, 0.7);
                 ctx.set_font_size(14.0);
                 let b = ctx.text_extents(chart_name.as_str()).unwrap();
                 ctx.move_to(PADDING_LEFT + 5.0, y - (b.height / 2.0 + b.y_bearing));
