@@ -1,6 +1,8 @@
 pub mod imp;
 pub mod components;
 
+use std::ffi::OsStr;
+use std::path::PathBuf;
 use std::{path::Path, fs::OpenOptions, io::SeekFrom};
 use std::io::{prelude::*};
 
@@ -76,6 +78,7 @@ impl BViewerWindow {
         action_open.connect_activate(clone!(@weak window => move |_action, _parameter| {
             let chooser = FileChooserDialog::builder()
                 .modal(true)
+                .select_multiple(true)
                 .action(FileChooserAction::Open)
                 .title("Open binary data file")
                 .build();
@@ -112,30 +115,20 @@ impl BViewerWindow {
                     .expect("Failed convert `Path` to `&str`");
                 window.settings().set_string("default-directory", directory).expect("Failed to save `default-directory`");
 
-                let f = filename.to_str().expect("Failed convert `Path` to `&str`");
-                // println!("Selected filename: {:#?}", &filename);
+                window.imp().chart_component.clear_values();
+                let files = &chooser.files();
+                for index in 0..files.n_items() {
+                    let file = files.item(index).unwrap().downcast::<gio::File>().unwrap();
+                    let file_path = file.path().unwrap();
 
-                let mut file = OpenOptions::new()
-                    .read(true)
-                    .open(f)
-                    .unwrap();
+                    let values = window.load_values_from_file(&file_path);
+                    let name = file_path.file_name().unwrap().to_str().unwrap().to_string();
+                    window.imp().chart_component.add_values(name, values);
+                }
 
-                // file.seek(SeekFrom::Start(offset)).unwrap();
+                // let values = window.load_values_from_file(&filename);
 
-                let length = match std::fs::metadata(f) {
-                    Ok(m) => m.len(),
-                    Err(_e) => 0,
-                };
-
-                let mut buf = vec![0; length as usize];
-                let _r = file.read_exact(&mut buf);
-
-                // convert Vec<u8> to Vec<f64>
-                let values = buf.chunks(8).map(|v| {
-                    f64::from_be_bytes([v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]])
-                }).collect::<Vec<f64>>();
-
-                window.imp().chart_component.set_values(values);
+                // window.imp().chart_component.set_values(values);
                 window.imp().chart_component.get().imp().offset.replace(0);
                 window.imp().chart_component.get().queue_draw();
 
@@ -233,6 +226,32 @@ impl BViewerWindow {
         if is_maximized {
             self.maximize();
         }
+    }
+
+    fn load_values_from_file(&self, filename: &PathBuf) -> Vec<f64> {
+        let f = filename.to_str().expect("Failed convert `Path` to `&str`");
+
+        let mut file = OpenOptions::new()
+            .read(true)
+            .open(f)
+            .unwrap();
+
+        // file.seek(SeekFrom::Start(offset)).unwrap();
+
+        let length = match std::fs::metadata(f) {
+            Ok(m) => m.len(),
+            Err(_e) => 0,
+        };
+
+        let mut buf = vec![0; length as usize];
+        let _r = file.read_exact(&mut buf);
+
+        // convert Vec<u8> to Vec<f64>
+        let values = buf.chunks(8).map(|v| {
+            f64::from_be_bytes([v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]])
+        }).collect::<Vec<f64>>();
+
+        values
     }
 
 }

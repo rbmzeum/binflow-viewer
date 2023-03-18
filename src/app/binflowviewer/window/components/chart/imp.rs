@@ -1,4 +1,4 @@
-use std::{cell::{RefCell, Cell}, rc::Rc};
+use std::{cell::{RefCell, Cell}, rc::Rc, collections::HashMap};
 
 // use gdk4::glib::WeakRef;
 use gtk4::{
@@ -20,7 +20,7 @@ pub struct BChartComponent {
     pub is_spacebar_pressed: Cell<bool>,
     pub start_offset: RefCell<usize>,
     pub offset: RefCell<usize>,
-    pub values: RefCell<Vec<f64>>,
+    pub values: RefCell<HashMap<String, Vec<f64>>>,
 }
 
 #[glib::object_subclass]
