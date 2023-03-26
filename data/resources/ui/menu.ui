@@ -11,6 +11,12 @@
       </section>
       <section>
         <item>
+          <attribute name="label" translatable="yes">_Append...</attribute>
+          <attribute name="action">win.append</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
           <attribute name="label" translatable="yes">_Quit</attribute>
           <attribute name="action">win.quit</attribute>
         </item>

@@ -72,9 +72,16 @@ impl BViewerWindow {
     }
 
     fn setup_actions(&self) {
+        self.setup_actions_open(false);
+        self.setup_actions_open(true);
+        self.setup_actions_quit();
+    }
+
+    pub fn setup_actions_open(&self, append: bool) {
         let window = self;
 
-        let action_open = SimpleAction::new("open", None);
+        let name = if append { "append" } else { "open" };
+        let action_open = SimpleAction::new(name, None);
         action_open.connect_activate(clone!(@weak window => move |_action, _parameter| {
             let chooser = FileChooserDialog::builder()
                 .modal(true)
@@ -115,7 +122,9 @@ impl BViewerWindow {
                     .expect("Failed convert `Path` to `&str`");
                 window.settings().set_string("default-directory", directory).expect("Failed to save `default-directory`");
 
-                window.imp().chart_component.clear_values();
+                if !append {
+                    window.imp().chart_component.clear_values();
+                }
                 let files = &chooser.files();
                 for index in 0..files.n_items() {
                     let file = files.item(index).unwrap().downcast::<gio::File>().unwrap();
@@ -136,6 +145,10 @@ impl BViewerWindow {
             }));
         }));
         window.add_action(&action_open);
+    }
+
+    pub fn setup_actions_quit(&self) {
+        let window = self;
 
         let action_quit = SimpleAction::new("quit", None);
         action_quit.connect_activate(clone!(@weak window => move |_action, _parameter| {
