@@ -107,6 +107,16 @@ impl BChartComponent {
         }));
     }
 
+    pub fn setup_mouseclick(&self) {
+        let gesture = gtk4::GestureClick::new();
+        self.add_controller(&gesture);
+        gesture.set_exclusive(true);
+        gesture.connect_pressed(clone!(@weak self as this => move |_gesture, _n_press, x, y| {
+            this.imp().mouse_click_position.replace((x, y));
+            this.queue_draw();
+        }));
+    }
+
     pub fn draw_grid(&self, _drawing_area: &DrawingArea, ctx: &Context, width: i32, height: i32) {
         // Фон
         ctx.set_source_rgb(255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0); // Background color
@@ -230,11 +240,20 @@ impl BChartComponent {
                 // Отображение графика
                 ctx.set_source_rgb(palette[index % palette.len()][0], palette[index % palette.len()][1], palette[index % palette.len()][2]);
                 ctx.set_line_width(1.0);
+                let mut cursor_position_x = -1.0;
+                let mut cursor_position_y = -1.0;
+                let mut cursor_value = 0.0;
                 if values.len() > width as usize - PADDING_LEFT as usize - PADDING_RIGHT as usize {
                     for (ix, p) in v.windows(2).rev().enumerate() {
                         let x = width as f64 - PADDING_RIGHT - ix as f64;
                         let y1 = height as f64 - PADDING_BOTTOM - PADDING_CHART - (p[0] - min) * hmm;
                         let y2 = height as f64 - PADDING_BOTTOM - PADDING_CHART - (p[1] - min) * hmm;
+                        let pos = &*self.imp().mouse_click_position.borrow();
+                        if cursor_position_x < 0.0 && pos.0 > x {
+                            cursor_position_x = x;
+                            cursor_position_y = y1;
+                            cursor_value = p[0].clone();
+                        }
                         if y1 == y2 {
                             ctx.move_to(x + 1.0, y1);
                             ctx.line_to(x, y2);
@@ -253,6 +272,12 @@ impl BChartComponent {
                         if ix > 0 {
                             let x = width as f64 - PADDING_RIGHT - (w * ix as f64);
                             let y = height as f64 - PADDING_BOTTOM - PADDING_CHART - (p - min) * hmm;
+                            let pos = &*self.imp().mouse_click_position.borrow();
+                            if cursor_position_x < 0.0 && pos.0 > x {
+                                cursor_position_x = x;
+                                cursor_position_y = y;
+                                cursor_value = p.clone();
+                            }
                             ctx.line_to(x, y);
                         }
                     }
@@ -295,6 +320,20 @@ impl BChartComponent {
                 let b = ctx.text_extents(chart_name.as_str()).unwrap();
                 ctx.move_to(PADDING_LEFT + 5.0, y - (b.height / 2.0 + b.y_bearing));
                 ctx.show_text(chart_name.as_str());
+
+                // Отображение фона для значения
+                ctx.set_source_rgba(palette[index % palette.len()][0], palette[index % palette.len()][1], palette[index % palette.len()][2], 0.7);
+                ctx.set_line_width(16.0);
+                ctx.move_to(cursor_position_x, cursor_position_y);
+                ctx.line_to(cursor_position_x + 120.0, cursor_position_y);
+                ctx.stroke();
+
+                // Отображение значения
+                ctx.set_source_rgba(1.0, 1.0, 1.0, 0.7);
+                ctx.set_font_size(14.0);
+                let b = ctx.text_extents(format!("{:.8}", cursor_value).as_str()).unwrap();
+                ctx.move_to(cursor_position_x + 5.0, cursor_position_y - (b.height / 2.0 + b.y_bearing));
+                ctx.show_text(format!("{:.8}", cursor_value).as_str());
             }
         }
     }

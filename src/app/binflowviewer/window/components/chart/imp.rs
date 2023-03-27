@@ -19,6 +19,7 @@ pub struct BChartComponent {
     // pub state: OnceCell<BChartComponentState>,
     pub is_spacebar_pressed: Cell<bool>,
     pub start_offset: RefCell<usize>,
+    pub mouse_click_position: RefCell<(f64, f64)>,
     pub offset: RefCell<usize>,
     pub values: RefCell<HashMap<String, Vec<f64>>>,
 }
@@ -54,6 +55,7 @@ impl ObjectImpl for BChartComponent {
 
         obj.setup_drawing_area();
         obj.setup_drag();
+        obj.setup_mouseclick();
     }
 }
 
